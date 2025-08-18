@@ -21,6 +21,7 @@
     "@types/node": "^24.2.1",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
+    "firebase-admin": "^13.4.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
     "jiti": "^2.5.1",
