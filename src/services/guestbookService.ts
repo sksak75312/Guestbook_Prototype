@@ -12,3 +12,12 @@ export async function getAllGuestbookEntries() {
 
   return data;
 }
+
+// firebase 提供 add 可以產生唯一識別碼，與 crypto.randomUUID() 相同
+export async function postGuestbookEntries(body: {
+  user: string;
+  message: string;
+}) {
+  await db.collection('guestbook').add(body);
+  return true;
+}

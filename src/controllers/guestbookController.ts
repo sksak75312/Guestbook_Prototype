@@ -15,3 +15,16 @@ export async function getAll(_: Request, res: Response) {
     });
   }
 }
+
+export async function postGuestbook(req: Request, res: Response) {
+  try {
+    await guestbookService.postGuestbookEntries(req.body);
+    res.status(201).json({ message: '新增留言成功' });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: '新增留言時發生錯誤',
+    });
+  }
+}

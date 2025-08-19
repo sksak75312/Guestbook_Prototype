@@ -4,5 +4,6 @@ import * as guestbookController from '../controllers/guestbookController';
 const router = Router();
 
 router.get('/', guestbookController.getAll);
+router.post('/', guestbookController.postGuestbook);
 
 export default router;
