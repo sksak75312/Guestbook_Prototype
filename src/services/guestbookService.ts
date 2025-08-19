@@ -1,12 +1,14 @@
 import db from '../config/firebase';
 
-export default function getGuestbookDB() {
-  const message = {
-    message: 'TEST MESSAGE',
-    id: new Date(),
-  };
+// 取得所有 Guestbook 資料
+export async function getAllGuestbookEntries() {
+  const guestbookRef = db.collection('guestbook');
+  const snapshot = await guestbookRef.get();
 
-  const docRef = db.collection('guestbook').doc(`${new Date()}`);
-  docRef.set(message);
-  return message;
+  const data = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  return data;
 }

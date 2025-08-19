@@ -3,6 +3,6 @@ import * as guestbookController from '../controllers/guestbookController';
 
 const router = Router();
 
-router.get('/', guestbookController.get);
+router.get('/', guestbookController.getAll);
 
 export default router;

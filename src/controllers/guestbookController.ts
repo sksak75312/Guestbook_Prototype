@@ -1,7 +1,17 @@
 import { Request, Response } from 'express';
+import * as guestbookService from '../services/guestbookService';
 
-import getGuestbookDB from '../services/guestbookService';
+export async function getAll(_: Request, res: Response) {
+  try {
+    const allData = await guestbookService.getAllGuestbookEntries();
 
-export function get(_: Request, res: Response) {
-  res.status(200).send(getGuestbookDB());
+    // 即使沒有資料，回傳 200 OK 和一個空陣列是 RESTful API 的常見做法
+    // 代表「成功找到 guestbook 這個資源，但裡面目前沒有內容」
+    res.status(200).json(allData);
+  } catch {
+    // 回傳 500 Internal Server Error，表示伺服器端發生了非預期的錯誤
+    res.status(500).json({
+      message: '讀取留言時發生錯誤',
+    });
+  }
 }
