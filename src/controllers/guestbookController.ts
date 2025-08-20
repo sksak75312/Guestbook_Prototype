@@ -16,6 +16,7 @@ export async function getAll(_: Request, res: Response) {
   }
 }
 
+// 新增留言
 export async function postGuestbook(req: Request, res: Response) {
   try {
     await guestbookService.postGuestbookEntries(req.body);
@@ -29,6 +30,7 @@ export async function postGuestbook(req: Request, res: Response) {
   }
 }
 
+// 刪除指定留言
 export async function deleteGuestbook(req: Request, res: Response) {
   try {
     await guestbookService.deleteGuestbookEntries(req.params.id);
