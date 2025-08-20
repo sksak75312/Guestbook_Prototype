@@ -28,3 +28,16 @@ export async function postGuestbook(req: Request, res: Response) {
     });
   }
 }
+
+export async function deleteGuestbook(req: Request, res: Response) {
+  try {
+    await guestbookService.deleteGuestbookEntries(req.params.id);
+    res.status(200).json({ message: '刪除留言成功' });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: '刪除留言時發生錯誤',
+    });
+  }
+}
