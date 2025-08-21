@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guestbook</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background-color: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      color: #0056b3;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box; /* Important for padding and width */
+    }
+    button[type="submit"] {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+    hr {
+      border: 0;
+      height: 1px;
+      background: #ddd;
+      margin: 30px 0;
+    }
+    .message-item {
+      background-color: #fdfdfd;
+      border: 1px solid #eee;
+      border-left: 4px solid #007bff;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      position: relative;
+    }
+    .message-item p {
+      margin: 0 0 10px 0;
+    }
+    .message-item .meta {
+      font-size: 0.9em;
+      color: #666;
+    }
+    .message-item .meta strong {
+      color: #333;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-weight: bold;
+      line-height: 24px;
+      text-align: center;
+      padding: 0;
+    }
+    .delete-btn:hover {
+      background: #c82333;
+    }
+
+    /* Dialog Styles */
+    dialog {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      padding: 24px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    dialog::backdrop {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    dialog h3 {
+      margin-top: 0;
+      color: #0056b3;
+    }
+    #dialog-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    #dialog-buttons button {
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .dialog-confirm-btn {
+      background-color: #007bff;
+      color: white;
+    }
+    .dialog-cancel-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Guestbook</h1>
+    <form id="guestbook-form">
+      <div class="form-group">
+        <label for="userId">Name:</label>
+        <input type="text" id="userId" name="userId" required>
+      </div>
+      <div class="form-group">
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="4" required></textarea>
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+    <hr>
+    <h2>Messages</h2>
+    <div id="messages-container">
+      <p>Loading messages...</p>
+    </div>
+  </div>
+
+  <dialog id="custom-dialog">
+    <h3 id="dialog-title"></h3>
+    <p id="dialog-message"></p>
+    <div id="dialog-buttons"></div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const API_URL = 'https://guestbook-p2iu.onrender.com/guestbook';
+      const form = document.getElementById('guestbook-form');
+      const messagesContainer = document.getElementById('messages-container');
+      const userIdInput = document.getElementById('userId');
+      const messageInput = document.getElementById('message');
+
+      const dialog = document.getElementById('custom-dialog');
+      const dialogTitle = document.getElementById('dialog-title');
+      const dialogMessage = document.getElementById('dialog-message');
+      const dialogButtons = document.getElementById('dialog-buttons');
+
+      // Function to show a confirmation dialog that returns a promise
+      const showConfirm = (title, message) => {
+        dialogTitle.textContent = title;
+        dialogMessage.textContent = message;
+        dialogButtons.innerHTML = ''; // Clear old buttons
+
+        return new Promise((resolve) => {
+          const confirmBtn = document.createElement('button');
+          confirmBtn.textContent = 'Confirm';
+          confirmBtn.className = 'dialog-confirm-btn';
+          confirmBtn.onclick = () => {
+            dialog.close();
+            resolve(true);
+          };
+
+          const cancelBtn = document.createElement('button');
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.className = 'dialog-cancel-btn';
+          cancelBtn.onclick = () => {
+            dialog.close();
+            resolve(false);
+          };
+
+          dialogButtons.append(cancelBtn, confirmBtn);
+          dialog.showModal();
+        });
+      };
+
+      // Function to show a simple alert dialog
+      const showAlert = (title, message) => {
+        dialogTitle.textContent = title;
+        dialogMessage.textContent = message;
+        dialogButtons.innerHTML = '<button class="dialog-confirm-btn">OK</button>';
+        dialogButtons.firstElementChild.onclick = () => dialog.close();
+        dialog.showModal();
+      };
+
+      // Fetch and render messages on page load
+      const fetchMessages = async () => {
+        messagesContainer.innerHTML = '<p>Loading messages...</p>';
+        try {
+          const response = await fetch(API_URL);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const messages = await response.json();
+          renderMessages(messages);
+        } catch (error) {
+          console.error("Failed to fetch messages:", error);
+          messagesContainer.innerHTML = '<p>Error loading messages. Please try again later.</p>';
+        }
+      };
+
+      // Render messages to the DOM
+      const renderMessages = (messages) => {
+        messagesContainer.innerHTML = ''; // Clear previous content
+        if (messages.length === 0) {
+          messagesContainer.innerHTML = '<p>No messages yet. Be the first to post!</p>';
+          return;
+        }
+
+        // Sort messages by date, newest first
+        const sortedMessages = [...messages].sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate));
+
+        sortedMessages.forEach(msg => {
+          const messageElement = document.createElement('div');
+          messageElement.className = 'message-item';
+          
+          const messageP = document.createElement('p');
+          messageP.textContent = msg.message;
+
+          const metaDiv = document.createElement('div');
+          metaDiv.className = 'meta';
+          
+          const userStrong = document.createElement('strong');
+          userStrong.textContent = msg.userId;
+
+          const dateSpan = document.createElement('span');
+          dateSpan.textContent = msg.publishedDate;
+
+          metaDiv.append('By ', userStrong, ' on ', dateSpan);
+
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'delete-btn';
+          deleteButton.dataset.id = msg.id;
+          deleteButton.title = 'Delete message';
+          deleteButton.innerHTML = '&times;';
+
+          messageElement.append(messageP, metaDiv, deleteButton);
+          messagesContainer.appendChild(messageElement);
+        });
+      };
+
+      // Handle form submission to add a new message
+      const addMessage = async (event) => {
+        event.preventDefault();
+        const userId = userIdInput.value.trim();
+        const message = messageInput.value.trim();
+
+        if (!userId || !message) {
+          showAlert('Input Error', 'Please fill in both name and message.');
+          return;
+        }
+
+        const newMessage = { userId, message };
+
+        try {
+          const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newMessage),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          form.reset();
+          await fetchMessages();
+        } catch (error) {
+          console.error("Failed to add message:", error);
+          showAlert('Error', 'Failed to add message. Please try again.');
+        }
+      };
+
+      // Handle message deletion
+      const deleteMessage = async (id) => {
+        const confirmed = await showConfirm('Confirm Deletion', 'Are you sure you want to delete this message?');
+        if (!confirmed) {
+          return;
+        }
+        
+        try {
+          const response = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          await fetchMessages(); // Refresh the list
+        } catch (error) {
+          console.error("Failed to delete message:", error);
+          showAlert('Error', 'Failed to delete message. Please try again.');
+        }
+      };
+
+      // Event delegation for delete buttons
+      messagesContainer.addEventListener('click', (event) => {
+        if (event.target.classList.contains('delete-btn')) {
+          const messageId = event.target.dataset.id;
+          deleteMessage(messageId);
+        }
+      });
+
+      // Add submit listener to the form
+      form.addEventListener('submit', addMessage);
+
+      // Initial fetch
+      fetchMessages();
+    });
+  </script>
+</body>
+</html>
