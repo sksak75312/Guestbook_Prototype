@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import * as guestbookService from '../services/guestbookService';
+import z from 'zod';
+import { guestbookPostSchema } from '../schemas/guestbook.schema';
 
 export async function getAll(_: Request, res: Response) {
   try {
@@ -19,10 +21,15 @@ export async function getAll(_: Request, res: Response) {
 // 新增留言
 export async function postGuestbook(req: Request, res: Response) {
   try {
+    await guestbookPostSchema.parse(req.body);
     await guestbookService.postGuestbookEntries(req.body);
     res.status(201).json({ message: '新增留言成功' });
   } catch (error) {
-    console.error(error);
+    console.log(error);
+    
+    if(error instanceof z.ZodError) {
+      console.log(error.issues)
+    }
 
     res.status(500).json({
       message: '新增留言時發生錯誤',
