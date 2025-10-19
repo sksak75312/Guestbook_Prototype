@@ -96,12 +96,12 @@ pnpm install
 │   ├── config/             # 設定檔 (Firebase 初始化)
 │   │   └── firebase.ts
 │   ├── controllers/        # 控制器 (處理請求與回應)
-│   │   └── guestbookController.ts
+│   │   └── xxxxxController.ts
 │   ├── routes/             # 路由定義
-│   │   ├── guestbookRoute.ts
+│   │   ├── xxxxxRoute.ts
 │   │   └── index.ts
 │   ├── services/           # 業務邏輯 (與資料庫互動)
-│   │   └── guestbookService.ts
+│   │   └── xxxxxService.ts
 │   └── app.ts              # Express 應用程式進入點
 ├── .env                    # 環境變數 (需自行建立)
 ├── .gitignore
