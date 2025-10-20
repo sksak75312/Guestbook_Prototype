@@ -3,6 +3,29 @@ import db from '../config/firebase';
 
 const router = Router();
 
+/**
+ * * 取得指定 Project ID 的資料
+ */
+router.get('/project/:projectId', async (req, res) => {
+  const { projectId } = req.params;
+  const getFirebaseStore = db.collection(projectId);
+  const snapshot = await getFirebaseStore.get();
+
+  const resData = snapshot.docs.reduce((acc, doc) => {
+    const data = doc.data()
+
+    /**
+     * * 判斷是否存在某個參數，存在該參數就回傳
+     */
+    if (Object.hasOwn(data, 'name')) {
+      acc.push({ id: doc.id, ...data })
+    }
+    return acc
+  }, [] as { id: string }[])
+
+  res.send(resData)
+})
+
 router.get('/all', async (req, res) => {
   /**
    * * collections 取得所有集合列表
@@ -16,7 +39,6 @@ router.get('/all', async (req, res) => {
     id: collection.id,
     name: collection.id
   }))
-
 
   res.send(collectionsData)
 })
