@@ -3,6 +3,24 @@ import db from '../config/firebase';
 
 const router = Router();
 
+router.get('/all', async (req, res) => {
+  /**
+   * * collections 取得所有集合列表
+   */
+  const collections = await db.listCollections();
+
+  /**
+   * * 組合所有集合列表
+   */
+  const collectionsData = collections.map(collection => ({
+    id: collection.id,
+    name: collection.id
+  }))
+
+
+  res.send(collectionsData)
+})
+
 // 新增集合
 router.post('/create', async (req, res) => {
   const { project } = req.body;
