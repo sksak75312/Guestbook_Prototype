@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>專案留言管理系統</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .project-section {
+        border-left: 4px solid #2196f3;
+      }
+
+      .comment-section-a {
+        border-left: 4px solid #4caf50;
+      }
+
+      .comment-section-b {
+        border-left: 4px solid #ff9800;
+      }
+
+      /* 動態留言板顏色輪替 (1~5) */
+      .comment-section {
+        border-left: 4px solid #4caf50;
+      }
+      .variant-1 {
+        border-left-color: #4caf50;
+      }
+      .variant-2 {
+        border-left-color: #2196f3;
+      }
+      .variant-3 {
+        border-left-color: #ff9800;
+      }
+      .variant-4 {
+        border-left-color: #9c27b0;
+      }
+      .variant-5 {
+        border-left-color: #009688;
+      }
+
+      /* 動態留言板顏色輪替 (1~5) */
+      .comment-section {
+        border-left: 4px solid #4caf50;
+      }
+      .variant-1 {
+        border-left-color: #4caf50;
+      } /* 綠 */
+      .variant-2 {
+        border-left-color: #2196f3;
+      } /* 藍 */
+      .variant-3 {
+        border-left-color: #ff9800;
+      } /* 橙 */
+      .variant-4 {
+        border-left-color: #9c27b0;
+      } /* 紫 */
+      .variant-5 {
+        border-left-color: #009688;
+      } /* 水鴨 */
+
+      h2 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 10px;
+        transition: background-color 0.3s;
+      }
+
+      .btn-primary {
+        background-color: #2196f3;
+        color: white;
+      }
+
+      .btn-danger {
+        background-color: #f44336;
+        color: white;
+      }
+
+      .dialog {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        width: 80vw; /* 放大寬度 */
+        max-width: 1000px; /* 最大寬度 */
+        max-height: 80vh; /* 放大高度 */
+        overflow: auto; /* 可滾動 */
+      }
+
+      .dialog-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+
+      .comment-input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .comment-list {
+        margin-top: 20px;
+      }
+
+      .comment-item {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .project-list {
+        margin-top: 20px;
+      }
+
+      .project-item {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 專案管理區塊 -->
+      <div class="section project-section">
+        <h2>專案管理</h2>
+        <button class="btn btn-primary" onclick="showAddProjectDialog()">新增專案</button>
+        <div class="project-list">
+          <!-- 專案列表會在這裡動態產生 -->
+        </div>
+      </div>
+
+      <!-- 動態專案留言板容器 -->
+      <div id="boardsContainer"></div>
+    </div>
+
+    <!-- 新增專案對話框 -->
+    <div class="dialog-backdrop" id="projectDialogBackdrop"></div>
+    <div class="dialog" id="addProjectDialog">
+      <h3>新增專案</h3>
+      <input
+        type="text"
+        class="comment-input"
+        placeholder="請輸入專案名稱..."
+        id="projectNameInput"
+      />
+      <button class="btn btn-primary" onclick="addProject()">確認</button>
+      <button class="btn" onclick="hideAddProjectDialog()">取消</button>
+    </div>
+
+    <!-- 查看專案留言對話框 -->
+    <div class="dialog" id="projectCommentsDialog">
+      <h3>專案留言</h3>
+      <div class="comment-list">
+        <!-- 專案留言列表會在這裡動態產生 -->
+      </div>
+      <button class="btn" onclick="hideProjectCommentsDialog()">關閉</button>
+    </div>
+
+    <script>
+      async function loadCommentsForProject(projectName, listEl) {
+        listEl.innerHTML = '<div class="comment-item"><span>載入中...</span></div>';
+        const encoded = encodeURIComponent(projectName);
+        const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encoded}`;
+        try {
+          const res = await fetch(url);
+          const json = await res.json();
+          const comments = Array.isArray(json?.data) ? json.data : [];
+
+          listEl.innerHTML = '';
+          if (comments.length === 0) {
+            listEl.innerHTML = '<div class="comment-item"><span>目前沒有留言</span></div>';
+          } else {
+            const toText = (item) =>
+              (typeof item === 'string' && item) ||
+              item?.content ||
+              item?.message ||
+              item?.text ||
+              item?.comment ||
+              JSON.stringify(item);
+
+            comments.forEach((c) => {
+              const commentItem = document.createElement('div');
+              commentItem.className = 'comment-item';
+              commentItem.innerHTML = `<span>${toText(c)}</span>`;
+              listEl.appendChild(commentItem);
+            });
+          }
+        } catch (e) {
+          listEl.innerHTML = '<div class="comment-item"><span>留言載入失敗</span></div>';
+        }
+      }
+
+      async function addMessageForProject(projectName, buttonEl) {
+        const board = buttonEl.closest('.section');
+        if (!board) return;
+        const input = board.querySelector('.comment-input');
+        const listEl = board.querySelector('.comment-list');
+        if (!input || !listEl) return;
+
+        const message = input.value.trim();
+        if (!message) return;
+
+        const encoded = encodeURIComponent(projectName);
+        const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encoded}`;
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: 'udn07345', message }),
+          });
+          if (!res.ok) {
+            throw new Error('Create message failed');
+          }
+          input.value = '';
+          await loadCommentsForProject(projectName, listEl);
+        } catch (err) {
+          alert('新增留言失敗，請稍後再試');
+          console.error('Create message error:', err);
+        }
+      }
+      // 初始化假資料
+      window.onload = function () {
+        // 從 API 取得專案清單
+        loadProjectsFromAPI();
+        // 動態建立每個專案留言板並載入留言
+        renderBoardsForAllProjects();
+      };
+
+      async function loadProjectsFromAPI() {
+        const projectList = document.querySelector('.project-list');
+        projectList.innerHTML = '';
+        try {
+          const res = await fetch('https://guestbook-p2iu.onrender.com/single-guestbook/all');
+          const json = await res.json();
+          // 預期格式：{ status: 200, data: [{ id, name }, ...] }
+          const items = Array.isArray(json?.data) ? json.data : [];
+          if (items.length === 0) {
+            projectList.innerHTML = '<div class="project-item"><span>目前沒有專案資料</span></div>';
+            return;
+          }
+          items.forEach((item) => {
+            const displayName = item?.name || item?.id || '未命名專案';
+            const projectItem = document.createElement('div');
+            projectItem.className = 'project-item';
+            projectItem.innerHTML = `
+                    <span>${displayName}</span>
+                    <div>
+                        <button class="btn btn-primary" onclick="viewProjectComments('${displayName}')">查看留言</button>
+                    </div>
+                `;
+            projectList.appendChild(projectItem);
+          });
+        } catch (err) {
+          projectList.innerHTML =
+            '<div class="project-item"><span>載入專案失敗，請稍後再試</span></div>';
+          // 可視需要在開發時於主控台查看錯誤
+          console.error('Load projects error:', err);
+        }
+      }
+
+      async function renderBoardsForAllProjects() {
+        const container = document.getElementById('boardsContainer');
+        if (!container) return;
+        container.innerHTML = '<div class="section"><span>載入中...</span></div>';
+
+        try {
+          // 1) 取得所有專案
+          const allRes = await fetch('https://guestbook-p2iu.onrender.com/single-guestbook/all');
+          const allJson = await allRes.json();
+          const projects = Array.isArray(allJson?.data) ? allJson.data : [];
+
+          if (projects.length === 0) {
+            container.innerHTML = '<div class="section"><span>目前沒有專案</span></div>';
+            return;
+          }
+
+          container.innerHTML = '';
+
+          // 2) 為每個專案建立留言板（顏色 1~5 輪替）並載入留言
+          await Promise.all(
+            projects.map(async (proj, idx) => {
+              const projectName = proj?.name || proj?.id || '';
+              const board = document.createElement('div');
+              board.className = `section comment-section variant-${(idx % 5) + 1}`;
+              board.innerHTML = `
+                <h2>${projectName}-留言板</h2>
+                <div style=\"display:flex; gap: 8px; align-items:center; margin-bottom:10px;\">
+                  <input type=\"text\" class=\"comment-input\" placeholder=\"請輸入留言...\" />
+                  <button class=\"btn btn-primary\" onclick=\"addMessageForProject('${projectName}', this)\">新增留言</button>
+                </div>
+                <div class=\"comment-list\"></div>
+              `;
+              container.appendChild(board);
+
+              const listEl = board.querySelector('.comment-list');
+              await loadCommentsForProject(projectName, listEl);
+            })
+          );
+        } catch (err) {
+          container.innerHTML = '<div class="section"><span>載入專案失敗，請稍後再試</span></div>';
+          console.error('Render Boards error:', err);
+        }
+      }
+
+      async function renderBoardAWithProjectsAndComments() {
+        const listEl = document.querySelector('.comment-section-a .comment-list');
+        if (!listEl) return;
+        listEl.innerHTML = '<div class="comment-item"><span>載入中...</span></div>';
+
+        try {
+          // 1) 取得所有專案
+          const allRes = await fetch('https://guestbook-p2iu.onrender.com/single-guestbook/all');
+          const allJson = await allRes.json();
+          const projects = Array.isArray(allJson?.data) ? allJson.data : [];
+
+          if (projects.length === 0) {
+            listEl.innerHTML = '<div class="comment-item"><span>目前沒有專案</span></div>';
+            return;
+          }
+
+          // 2) 並行抓每個專案的留言
+          const results = await Promise.all(
+            projects.map(async (proj) => {
+              const projectName = proj?.name || proj?.id || '';
+              const encoded = encodeURIComponent(projectName);
+              const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encoded}`;
+              try {
+                const res = await fetch(url);
+                const json = await res.json();
+                const comments = Array.isArray(json?.data) ? json.data : [];
+                return { projectName, comments };
+              } catch (e) {
+                return { projectName, comments: [], error: true };
+              }
+            })
+          );
+
+          // 3) 渲染到留言板 A，每個專案一個 .comment-item，內含全部留言
+          listEl.innerHTML = '';
+          results.forEach(({ projectName, comments, error }) => {
+            const commentItem = document.createElement('div');
+            commentItem.className = 'comment-item';
+
+            let commentsHtml = '';
+            if (error) {
+              commentsHtml = '<div>留言載入失敗</div>';
+            } else if (!comments || comments.length === 0) {
+              commentsHtml = '<div>目前沒有留言</div>';
+            } else {
+              const toText = (item) =>
+                (typeof item === 'string' && item) ||
+                item?.content ||
+                item?.message ||
+                item?.text ||
+                item?.comment ||
+                JSON.stringify(item);
+              commentsHtml = comments.map((c) => `<div>- ${toText(c)}</div>`).join('');
+            }
+
+            commentItem.innerHTML = `
+              <span>${projectName}</span>
+              <div style="text-align:left; max-width: 70%;">${commentsHtml}</div>
+            `;
+            listEl.appendChild(commentItem);
+          });
+        } catch (err) {
+          listEl.innerHTML =
+            '<div class="comment-item"><span>載入專案或留言失敗，請稍後再試</span></div>';
+          console.error('Render Board A error:', err);
+        }
+      }
+
+      function showAddProjectDialog() {
+        document.getElementById('addProjectDialog').style.display = 'block';
+        document.getElementById('projectDialogBackdrop').style.display = 'block';
+      }
+      function hideAddProjectDialog() {
+        document.getElementById('addProjectDialog').style.display = 'none';
+        document.getElementById('projectDialogBackdrop').style.display = 'none';
+      }
+
+      async function addProject() {
+        const projectName = document.getElementById('projectNameInput').value;
+        if (!projectName.trim()) return;
+
+        try {
+          const res = await fetch('https://guestbook-p2iu.onrender.com/single-guestbook/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project: projectName.trim() }),
+          });
+          const json = await res.json();
+          if (!res.ok || (json && json.status && json.status !== 200)) {
+            throw new Error('Create project failed');
+          }
+        } catch (err) {
+          alert('新增專案失敗，請稍後再試');
+          console.error('Create project error:', err);
+          return;
+        }
+
+        hideAddProjectDialog();
+        document.getElementById('projectNameInput').value = '';
+        // 重新載入清單與留言板
+        await loadProjectsFromAPI();
+        await renderBoardsForAllProjects();
+      }
+
+      function addComment(section) {
+        const commentSection = document.querySelector(`.comment-section-${section}`);
+        const input = commentSection.querySelector('.comment-input');
+        const commentText = input.value;
+
+        if (commentText.trim()) {
+          const commentList = commentSection.querySelector('.comment-list');
+          const commentItem = document.createElement('div');
+          commentItem.className = 'comment-item';
+          commentItem.innerHTML = `
+                    <span>${commentText}</span>
+                `;
+          commentList.appendChild(commentItem);
+          input.value = '';
+        }
+      }
+
+      function deleteComment(button) {
+        button.closest('.comment-item').remove();
+      }
+
+      async function viewProjectComments(projectName) {
+        const dialog = document.getElementById('projectCommentsDialog');
+        const commentList = dialog.querySelector('.comment-list');
+
+        // 清空現有留言並顯示載入中
+        commentList.innerHTML = '<div class="comment-item"><span>載入中...</span></div>';
+
+        const encodedId = encodeURIComponent(projectName);
+        const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encodedId}`;
+
+        try {
+          const res = await fetch(url);
+          const json = await res.json();
+          const items = Array.isArray(json?.data) ? json.data : [];
+
+          commentList.innerHTML = '';
+
+          if (items.length === 0) {
+            commentList.innerHTML = '<div class="comment-item"><span>目前沒有留言</span></div>';
+          } else {
+            items.forEach((item) => {
+              // 嘗試從常見欄位取文字，否則字串化顯示
+              const text =
+                (typeof item === 'string' && item) ||
+                item?.content ||
+                item?.message ||
+                item?.text ||
+                item?.comment ||
+                JSON.stringify(item);
+              const msgId = item?.id || item?._id || item?.messageId || '';
+
+              const commentItem = document.createElement('div');
+              commentItem.className = 'comment-item';
+              commentItem.innerHTML = `
+                <span>${text}</span>
+                ${
+                  msgId
+                    ? `<button class="btn btn-danger" onclick="deleteProjectMessage('${projectName}','${msgId}')">刪除</button>`
+                    : ''
+                }
+              `;
+              commentList.appendChild(commentItem);
+            });
+          }
+        } catch (err) {
+          commentList.innerHTML =
+            '<div class="comment-item"><span>載入留言失敗，請稍後再試</span></div>';
+          console.error('Load project comments error:', err);
+        }
+
+        dialog.style.display = 'block';
+        document.getElementById('projectDialogBackdrop').style.display = 'block';
+      }
+
+      async function deleteProjectMessage(projectName, msgId) {
+        if (!msgId) return;
+        if (!confirm('確定要刪除此留言嗎？')) return;
+        const encodedId = encodeURIComponent(projectName);
+        const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encodedId}/${msgId}`;
+        try {
+          const res = await fetch(url, { method: 'DELETE' });
+          if (!res.ok) throw new Error('刪除失敗');
+          // 刪除後刷新留言
+          await viewProjectComments(projectName);
+        } catch (e) {
+          alert('刪除留言失敗，請稍後再試');
+          console.error('Delete message error', e);
+        }
+      }
+
+      function hideProjectCommentsDialog() {
+        document.getElementById('projectCommentsDialog').style.display = 'none';
+        document.getElementById('projectDialogBackdrop').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>
