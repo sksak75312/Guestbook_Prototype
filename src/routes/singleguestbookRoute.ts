@@ -32,6 +32,25 @@ router.get('/project/:projectId', async (req, res) => {
   });
 });
 
+/**
+ * * 新增單一集合留言
+ */
+router.post('/project/:projectId', async (req, res) => {
+  const { projectId } = req.params;
+  const { id, message } = req.body;
+
+  await db.collection(projectId).add({
+    date: new Date(),
+    id,
+    message,
+  });
+
+  res.status(201).send({
+    status: 201,
+    message: '新增留言成功',
+  });
+});
+
 router.get('/all', async (_, res) => {
   /**
    * * collections 取得所有集合列表
