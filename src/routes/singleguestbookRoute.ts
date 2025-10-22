@@ -11,7 +11,7 @@ router.get('/project/:projectId', async (req, res) => {
   const getFirebaseStore = db.collection(projectId);
   const snapshot = await getFirebaseStore.get();
 
-  const resData = snapshot.docs.reduce((acc, doc) => {
+  const data = snapshot.docs.reduce((acc, doc) => {
     const data = doc.data()
 
     /**
@@ -23,10 +23,13 @@ router.get('/project/:projectId', async (req, res) => {
     return acc
   }, [] as { id: string }[])
 
-  res.send(resData)
+  res.status(200).send({
+    status: 200,
+    data
+  })
 })
 
-router.get('/all', async (req, res) => {
+router.get('/all', async (_, res) => {
   /**
    * * collections 取得所有集合列表
    */
@@ -35,12 +38,15 @@ router.get('/all', async (req, res) => {
   /**
    * * 組合所有集合列表
    */
-  const collectionsData = collections.map(collection => ({
+  const data = collections.map(collection => ({
     id: collection.id,
     name: collection.id
   }))
 
-  res.send(collectionsData)
+  res.status(200).send({
+    status: 200,
+    data
+  })
 })
 
 // 新增集合
