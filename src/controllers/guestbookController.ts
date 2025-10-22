@@ -26,9 +26,9 @@ export async function postGuestbook(req: Request, res: Response) {
     res.status(201).json({ message: '新增留言成功' });
   } catch (error) {
     console.log(error);
-    
-    if(error instanceof z.ZodError) {
-      console.log(error.issues)
+
+    if (error instanceof z.ZodError) {
+      console.log(error.issues);
     }
 
     res.status(500).json({
