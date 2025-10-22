@@ -14,11 +14,10 @@ router.get('/project/:projectId', async (req, res) => {
   const data = snapshot.docs.reduce(
     (acc, doc) => {
       const data = doc.data();
-
       /**
        * * 判斷是否存在某個參數，存在該參數就回傳
        */
-      if (Object.hasOwn(data, 'name')) {
+      if (Object.hasOwn(data, 'message')) {
         acc.push({ id: doc.id, ...data });
       }
       return acc;
@@ -37,11 +36,11 @@ router.get('/project/:projectId', async (req, res) => {
  */
 router.post('/project/:projectId', async (req, res) => {
   const { projectId } = req.params;
-  const { id, message } = req.body;
+  const { userId, message } = req.body;
 
   await db.collection(projectId).add({
     date: new Date(),
-    id,
+    userId,
     message,
   });
 
@@ -91,6 +90,20 @@ router.post('/create', async (req, res) => {
       message: `資料庫創建成功`,
     });
   }
+});
+
+/**
+ * * 刪除指定留言
+ */
+router.delete('/project/:projectId/:messageId', async (req, res) => {
+  const { projectId, messageId } = req.params;
+  await db.collection(projectId).doc(messageId).delete();
+  console.log(projectId, messageId);
+
+  res.status(200).send({
+    status: 200,
+    message: '成功刪除指定留言',
+  });
 });
 
 export default router;
