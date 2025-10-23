@@ -1,85 +1,92 @@
 import { Request, Response } from 'express';
-import db from '../config/firebase';
+import * as commentsService from '../services/comments.service';
 
 export async function getSingleProject(req: Request, res: Response) {
-  const { projectId } = req.params;
-  const getFirebaseStore = db.collection(projectId);
-  const snapshot = await getFirebaseStore.get();
-
-  const data = snapshot.docs.reduce(
-    (acc, doc) => {
-      const data = doc.data();
-      if (Object.hasOwn(data, 'message')) {
-        acc.push({ id: doc.id, ...data });
-      }
-      return acc;
-    },
-    [] as { id: string }[],
-  );
-
-  res.status(200).send({
-    status: 200,
-    data,
-  });
+  try {
+    const { projectId } = req.params;
+    const data = await commentsService.getSingleProject(projectId);
+    res.status(200).send({
+      status: 200,
+      data,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(404).send({
+        status: 404,
+        message: error.message,
+      });
+    }
+  }
 }
 
 export async function postSingleProjectMessage(req: Request, res: Response) {
-  const { projectId } = req.params;
-  const { userId, message } = req.body;
-
-  await db.collection(projectId).add({
-    date: new Date(),
-    userId,
-    message,
-  });
-
-  res.status(201).send({
-    status: 201,
-    message: '新增留言成功',
-  });
+  try {
+    const { projectId } = req.params;
+    const { userId, message } = req.body;
+    await commentsService.postSingleProjectMessage(projectId, userId, message);
+    res.status(201).send({
+      status: 201,
+      message: '新增留言成功',
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(404).send({
+        status: 404,
+        message: error.message,
+      });
+    }
+  }
 }
 
 export async function getAllProjects(_: Request, res: Response) {
-  const collections = await db.listCollections();
-  const data = collections.map((collection) => ({
-    id: collection.id,
-    name: collection.id,
-  }));
-
-  res.status(200).send({
-    status: 200,
-    data,
-  });
+  try {
+    const data = await commentsService.getAllProjects;
+    res.status(200).send({
+      status: 200,
+      data,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(404).send({
+        status: 404,
+        message: error.message,
+      });
+    }
+  }
 }
 
 export async function postNewProject(req: Request, res: Response) {
-  const { project } = req.body;
-
-  const getSetCollection = db.collection(project);
-  const snapshot = await getSetCollection.get();
-  const isSetExist = !!snapshot.size;
-
-  if (isSetExist) {
-    res.status(404).json({
-      status: 404,
-      message: '專案名稱已存在，請重新確認名稱',
-    });
-  } else {
-    db.collection(project).add({});
-    res.status(200).json({
-      status: 200,
+  try {
+    const { project } = req.body;
+    await commentsService.postNewProject(project);
+    res.status(201).send({
+      status: 201,
       message: `資料庫創建成功`,
     });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(404).send({
+        status: 404,
+        message: error.message,
+      });
+    }
   }
 }
 
 export async function deleteSingleProjectMessage(req: Request, res: Response) {
-  const { projectId, messageId } = req.params;
-  await db.collection(projectId).doc(messageId).delete();
-  console.log(projectId, messageId);
-
-  res.status(200).send({
-    status: 200,
-    message: '成功刪除指定留言',
-  });
+  try {
+    const { projectId, messageId } = req.params;
+    await commentsService.deleteSingleProjectMessage(projectId, messageId);
+    res.status(200).send({
+      status: 200,
+      message: '成功刪除指定留言',
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(404).send({
+        status: 404,
+        message: '刪除留言失敗，請通知工程師',
+      });
+    }
+  }
 }
