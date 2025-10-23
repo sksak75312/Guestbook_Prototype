@@ -1,4 +1,4 @@
-# 公司系統留言板 Prototype
+# 留言板系統 API Prototype
 
 簡單的 Express + Firebase Cloud Firestore 後端範例，用來快速建立留言板 API 並驗證設計與流程。
 
