@@ -1,6 +1,9 @@
-# Guestbook API 專案
+# 公司系統留言板 Prototype
 
-這是一個使用 Express 和 Firebase Cloud Firestore 建立的簡易留言板後端 API 服務。
+簡單的 Express + Firebase Cloud Firestore 後端範例，用來快速建立留言板 API 並驗證設計與流程。
+
+- [**功能 DEMO 頁面**](https://sksak75312.github.io/Guestbook_Prototype/project.html)
+- [**BASE API URL**](https://guestbook-p2iu.onrender.com/)
 
 ## 專案描述
 
@@ -8,22 +11,29 @@
 
 ### 目前功能
 
+> 撰寫測試功能
+
 - **`GET /`**: 根路徑的歡迎訊息。
 - **`GET /guestbook`**: 取得所有留言列表。
 - **`POST /guestbook`**: 新增一筆留言。
 - **`DELETE /guestbook/:id`**: 刪除指定 ID 的留言。
 
-### 未來開發方向
+---
 
-- [ ] **資料驗證**: 針對傳入的請求內容進行驗證，確保資料的完整性與正確性。
-- [ ] **錯誤處理**: 建立一個統一的錯誤處理中介軟體。
-- [ ] **更新留言**: 透過指定 ID 更新留言
+> 符合專案需求 API
+
+- **`GET/single-guestbook/project/:projectId`**: 取得單一專案所有留言
+- **`POST/single-guestbook/project/:projectId`**: 新增指定專案留言
+- **`GET/single-guestbook/all`**: 取得所以專案
+- **`POST/single-guestbook/create`**: 新增一筆專案
+- **`DELETE/single-guestbook/:projectId/:messageId`**: 刪除指定專案的指定留言
 
 ## 技術架構 (Tech Stack)
 
 - **後端框架**: Express.js
 - **資料庫**: Cloud Firestore (Firebase)
 - **語言**: TypeScript
+- **資料驗證**: zod
 - **執行環境**: Node.js
 - **套件管理器**: pnpm
 - **程式碼品質**:
