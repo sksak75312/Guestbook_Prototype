@@ -1,6 +1,6 @@
 # 留言板系統 API Prototype
 
-簡單的 Express + Firebase Cloud Firestore 後端範例，用來快速建立留言板 API 並驗證設計與流程。
+這是一個使用 **Express.js**、**TypeScript** 和 **Firebase Cloud Firestore** 實作的後端環境，旨在快速建立一個高效能、可擴展的留言板應用程式。專案採用**分層式架構 (Layered Architecture)**，將程式邏輯分為 **Routes** -> **Controllers** -> **Services** -> **Repositories**，以確保代碼模組化、易於維護和測試。
 
 - [**功能 DEMO 頁面**](https://sksak75312.github.io/Guestbook_Prototype/project.html)
 - [**BASE API URL**](https://guestbook-p2iu.onrender.com/)
