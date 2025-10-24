@@ -40,8 +40,8 @@ export async function postSingleProjectMessage(req: Request, res: Response) {
 
 export async function getAllProjects(_: Request, res: Response) {
   try {
-    const data = await commentsService.getAllProjects;
-    res.status(200).send({
+    const data = await commentsService.getAllProjects();
+    res.status(200).json({
       status: 200,
       data,
     });
