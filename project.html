@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -444,20 +444,25 @@
             body: JSON.stringify({ project: projectName.trim() }),
           });
           const json = await res.json();
-          if (!res.ok || (json && json.status && json.status !== 200)) {
+
+          if (!res.ok) {
             throw new Error('Create project failed');
           }
-        } catch (err) {
-          alert('新增專案失敗，請稍後再試');
-          console.error('Create project error:', err);
-          return;
-        }
 
-        hideAddProjectDialog();
-        document.getElementById('projectNameInput').value = '';
-        // 重新載入清單與留言板
-        await loadProjectsFromAPI();
-        await renderBoardsForAllProjects();
+          // 成功時執行
+          hideAddProjectDialog();
+          document.getElementById('projectNameInput').value = '';
+          // 重新載入清單與留言板
+          await loadProjectsFromAPI();
+          await renderBoardsForAllProjects();
+        } catch (err) {
+          console.error('Create project error details:', {
+            error: err,
+            message: err.message,
+            stack: err.stack,
+          });
+          alert('新增專案失敗，請稍後再試');
+        }
       }
 
       function addComment(section) {
@@ -470,8 +475,8 @@
           const commentItem = document.createElement('div');
           commentItem.className = 'comment-item';
           commentItem.innerHTML = `
-                    <span>${commentText}</span>
-                `;
+            <span>${commentText}</span>
+          `;
           commentList.appendChild(commentItem);
           input.value = '';
         }
