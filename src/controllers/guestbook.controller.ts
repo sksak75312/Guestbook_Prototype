@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as guestbookService from '../services/guestbookService';
+import * as guestbookService from '../services/guestbook.service';
 import z from 'zod';
 import { guestbookPostSchema } from '../schemas/guestbook.schema';
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as guestbookController from '../controllers/guestbookController';
+import * as guestbookController from '../controllers/guestbook.controller';
 
 const router = Router();
 

@@ -3,7 +3,7 @@ import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
 import indexRoute from './routes';
-import guestbookRoute from './routes/guestbookRoute';
+import guestbookRoute from './routes/guestbook.route';
 import commentsRoute from './routes/comments.route';
 
 const app = express();
