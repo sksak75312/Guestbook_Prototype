@@ -4,7 +4,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import indexRoute from './routes';
 import guestbookRoute from './routes/guestbookRoute';
-import singleguestbookRoute from './routes/singleguestbookRoute';
+import commentsRoute from './routes/comments.route';
 
 const app = express();
 
@@ -16,7 +16,7 @@ app.use(cors());
 
 app.use('/', indexRoute);
 app.use('/guestbook', guestbookRoute);
-app.use('/single-guestbook', singleguestbookRoute);
+app.use('/comments', commentsRoute);
 
 app.listen(PORT, () => {
   console.log('伺服器已經啟動');
