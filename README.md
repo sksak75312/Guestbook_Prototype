@@ -22,11 +22,11 @@
 
 > 符合專案需求 API
 
-- **`GET/single-guestbook/project/:projectId`**: 取得單一專案所有留言
-- **`POST/single-guestbook/project/:projectId`**: 新增指定專案留言
-- **`GET/single-guestbook/all`**: 取得所以專案
-- **`POST/single-guestbook/create`**: 新增一筆專案
-- **`DELETE/single-guestbook/:projectId/:messageId`**: 刪除指定專案的指定留言
+- **`GET/comments/project/:projectId`**: 取得單一專案所有留言
+- **`POST/comments/project/:projectId`**: 新增指定專案留言
+- **`GET/comments/all`**: 取得所以專案
+- **`POST/comments/create`**: 新增一筆專案
+- **`DELETE/comments/:projectId/:messageId`**: 刪除指定專案的指定留言
 
 ## 技術架構 (Tech Stack)
 
