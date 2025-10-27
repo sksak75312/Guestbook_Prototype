@@ -1,8 +1,7 @@
-import db from '../config/firebase';
+import * as commentsRepositories from '../repositories/comments.repository';
 
 export async function getSingleProject(projectId: string) {
-  const getFirebaseStore = db.collection(projectId);
-  const snapshot = await getFirebaseStore.get();
+  const snapshot = await commentsRepositories.getSingleProject(projectId);
 
   const data = snapshot.docs.reduce(
     (acc, doc) => {
@@ -26,11 +25,11 @@ export async function postSingleProjectMessage(
   userId: string,
   message: string,
 ) {
-  const docRef = await db.collection(projectId).add({
-    date: new Date(),
+  const docRef = await commentsRepositories.postSingleProjectMessage(
+    projectId,
     userId,
     message,
-  });
+  );
 
   if (docRef.id) {
     return;
@@ -40,7 +39,8 @@ export async function postSingleProjectMessage(
 }
 
 export async function getAllProjects() {
-  const collections = await db.listCollections();
+  const collections = await commentsRepositories.getAllProjects();
+
   const data = collections.map((collection) => ({
     id: collection.id,
     name: collection.id,
@@ -54,14 +54,10 @@ export async function getAllProjects() {
 }
 
 export async function postNewProject(project: string) {
-  const getSetCollection = db.collection(project);
-  const snapshot = await getSetCollection.get();
-  const isSetExist = !!snapshot.size;
+  const isSetExist = await commentsRepositories.postNewProject(project);
 
   if (isSetExist) {
     throw new Error('專案名稱已存在，請重新確認名稱');
-  } else {
-    db.collection(project).add({});
   }
 }
 
@@ -69,5 +65,5 @@ export async function deleteSingleProjectMessage(
   projectId: string,
   messageId: string,
 ) {
-  await db.collection(projectId).doc(messageId).delete();
+  await commentsRepositories.deleteSingleProjectMessage(projectId, messageId);
 }
