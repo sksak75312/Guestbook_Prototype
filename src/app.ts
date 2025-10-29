@@ -22,6 +22,10 @@ app.use('/comments', commentsRoute);
 
 app.use(errorHandler);
 
+app.use((_req, res) => {
+  res.status(404).send({ status: 404, message: '請您重新確認頁面' });
+});
+
 app.listen(PORT, () => {
   console.log('伺服器已經啟動');
 });
