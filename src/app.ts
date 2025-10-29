@@ -6,6 +6,8 @@ import indexRoute from './routes';
 import guestbookRoute from './routes/guestbook.route';
 import commentsRoute from './routes/comments.route';
 
+import errorHandler from './middlewares/errorHandler';
+
 const app = express();
 
 const PORT = process.env.PORT || 3000;
@@ -17,6 +19,8 @@ app.use(cors());
 app.use('/', indexRoute);
 app.use('/guestbook', guestbookRoute);
 app.use('/comments', commentsRoute);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log('伺服器已經啟動');

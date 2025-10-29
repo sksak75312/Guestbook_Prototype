@@ -1,7 +1,11 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import * as commentsService from '../services/comments.service';
 
-export async function getSingleProject(req: Request, res: Response) {
+export async function getSingleProject(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { projectId } = req.params;
     const data = await commentsService.getSingleProject(projectId);
@@ -10,16 +14,15 @@ export async function getSingleProject(req: Request, res: Response) {
       data,
     });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(404).json({
-        status: 404,
-        message: error.message,
-      });
-    }
+    next(error);
   }
 }
 
-export async function postSingleProjectMessage(req: Request, res: Response) {
+export async function postSingleProjectMessage(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { projectId } = req.params;
     const { userId, message } = req.body;
@@ -29,16 +32,15 @@ export async function postSingleProjectMessage(req: Request, res: Response) {
       message: '新增留言成功',
     });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(404).json({
-        status: 404,
-        message: error.message,
-      });
-    }
+    next(error);
   }
 }
 
-export async function getAllProjects(_: Request, res: Response) {
+export async function getAllProjects(
+  _: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const data = await commentsService.getAllProjects();
     res.status(200).json({
@@ -46,16 +48,15 @@ export async function getAllProjects(_: Request, res: Response) {
       data,
     });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(404).json({
-        status: 404,
-        message: error.message,
-      });
-    }
+    next(error);
   }
 }
 
-export async function postNewProject(req: Request, res: Response) {
+export async function postNewProject(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { project } = req.body;
     await commentsService.postNewProject(project);
@@ -64,16 +65,15 @@ export async function postNewProject(req: Request, res: Response) {
       message: `資料庫創建成功`,
     });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(404).json({
-        status: 404,
-        message: error.message,
-      });
-    }
+    next(error);
   }
 }
 
-export async function deleteSingleProjectMessage(req: Request, res: Response) {
+export async function deleteSingleProjectMessage(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { projectId, messageId } = req.params;
     await commentsService.deleteSingleProjectMessage(projectId, messageId);
@@ -82,11 +82,6 @@ export async function deleteSingleProjectMessage(req: Request, res: Response) {
       message: '成功刪除指定留言',
     });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(404).json({
-        status: 404,
-        message: '刪除留言失敗，請通知工程師',
-      });
-    }
+    next(error);
   }
 }
