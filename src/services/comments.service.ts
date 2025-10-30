@@ -1,5 +1,7 @@
 import * as commentsRepositories from '../repositories/comments.repository';
 
+import { ErrorMessage } from '../types/message.enum';
+
 export async function getSingleProject(projectId: string) {
   const snapshot = await commentsRepositories.getSingleProject(projectId);
 
@@ -16,7 +18,7 @@ export async function getSingleProject(projectId: string) {
   if (data.length) {
     return data;
   } else {
-    throw new Error('查無此專案，請重新確認專案名稱');
+    throw new Error(ErrorMessage.SEARCH_NOT_PROJECT);
   }
 }
 
@@ -34,7 +36,7 @@ export async function postSingleProjectMessage(
   if (docRef.id) {
     return;
   } else {
-    throw new Error('留言失敗!，請確認 FireStore');
+    throw new Error(ErrorMessage.POST_COMMENT_FAILURE);
   }
 }
 
@@ -49,7 +51,7 @@ export async function getAllProjects() {
   if (data.length) {
     return data;
   } else {
-    throw new Error('取得專案失敗');
+    throw new Error(ErrorMessage.GET_ALL_PROJECT_FAILURE);
   }
 }
 
@@ -57,7 +59,7 @@ export async function postNewProject(project: string) {
   const isSetExist = await commentsRepositories.postNewProject(project);
 
   if (isSetExist) {
-    throw new Error('專案名稱已存在，請重新確認名稱');
+    throw new Error(ErrorMessage.POST_PROJECT_IS_EXIST);
   }
 }
 
