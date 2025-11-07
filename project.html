@@ -214,7 +214,7 @@
       async function loadCommentsForProject(projectName, listEl) {
         listEl.innerHTML = '<div class="comment-item"><span>載入中...</span></div>';
         const encoded = encodeURIComponent(projectName);
-        const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encoded}`;
+        const url = `https://guestbook-p2iu.onrender.com/comments/project/${encoded}`;
         try {
           const res = await fetch(url);
           const json = await res.json();
@@ -255,7 +255,7 @@
         if (!message) return;
 
         const encoded = encodeURIComponent(projectName);
-        const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encoded}`;
+        const url = `https://guestbook-p2iu.onrender.com/comments/project/${encoded}`;
         try {
           const res = await fetch(url, {
             method: 'POST',
@@ -284,7 +284,7 @@
         const projectList = document.querySelector('.project-list');
         projectList.innerHTML = '';
         try {
-          const res = await fetch('https://guestbook-p2iu.onrender.com/single-guestbook/all');
+          const res = await fetch('https://guestbook-p2iu.onrender.com/comments/all');
           const json = await res.json();
           // 預期格式：{ status: 200, data: [{ id, name }, ...] }
           const items = Array.isArray(json?.data) ? json.data : [];
@@ -319,7 +319,7 @@
 
         try {
           // 1) 取得所有專案
-          const allRes = await fetch('https://guestbook-p2iu.onrender.com/single-guestbook/all');
+          const allRes = await fetch('https://guestbook-p2iu.onrender.com/comments/all');
           const allJson = await allRes.json();
           const projects = Array.isArray(allJson?.data) ? allJson.data : [];
 
@@ -363,7 +363,7 @@
 
         try {
           // 1) 取得所有專案
-          const allRes = await fetch('https://guestbook-p2iu.onrender.com/single-guestbook/all');
+          const allRes = await fetch('https://guestbook-p2iu.onrender.com/comments/all');
           const allJson = await allRes.json();
           const projects = Array.isArray(allJson?.data) ? allJson.data : [];
 
@@ -377,7 +377,7 @@
             projects.map(async (proj) => {
               const projectName = proj?.name || proj?.id || '';
               const encoded = encodeURIComponent(projectName);
-              const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encoded}`;
+              const url = `https://guestbook-p2iu.onrender.com/comments/project/${encoded}`;
               try {
                 const res = await fetch(url);
                 const json = await res.json();
@@ -438,7 +438,7 @@
         if (!projectName.trim()) return;
 
         try {
-          const res = await fetch('https://guestbook-p2iu.onrender.com/single-guestbook/create', {
+          const res = await fetch('https://guestbook-p2iu.onrender.com/comments/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ project: projectName.trim() }),
@@ -494,7 +494,7 @@
         commentList.innerHTML = '<div class="comment-item"><span>載入中...</span></div>';
 
         const encodedId = encodeURIComponent(projectName);
-        const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encodedId}`;
+        const url = `https://guestbook-p2iu.onrender.com/comments/project/${encodedId}`;
 
         try {
           const res = await fetch(url);
@@ -544,7 +544,7 @@
         if (!msgId) return;
         if (!confirm('確定要刪除此留言嗎？')) return;
         const encodedId = encodeURIComponent(projectName);
-        const url = `https://guestbook-p2iu.onrender.com/single-guestbook/project/${encodedId}/${msgId}`;
+        const url = `https://guestbook-p2iu.onrender.com/comments/project/${encodedId}/${msgId}`;
         try {
           const res = await fetch(url, { method: 'DELETE' });
           if (!res.ok) throw new Error('刪除失敗');
